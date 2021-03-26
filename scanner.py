@@ -6,6 +6,9 @@ import math
 from skimage.filters import threshold_sauvola, threshold_local
 import imutils
 import pandas as pd
+import argparse
+import sys
+import os
 
 
 
@@ -120,54 +123,67 @@ def ratio(img):
         ratio=1
     return ratio
 
+def create_arg_parser():
+    # Creates and returns the ArgumentParser object
+
+    parser = argparse.ArgumentParser(description='Description of your app.')
+    parser.add_argument('inputDirectory',
+                    help='Path to the input directory.')
+    parser.add_argument('--outputDirectory',
+                    help='Path to the output that contains the resumes.')
+    return parser
 
 
-# main
-path = r'C:\Users\crazy\Desktop\OCR\1.jpg'
+if __name__ == "__main__":
+    arg_parser = create_arg_parser()
+    parsed_args = arg_parser.parse_args(sys.argv[1:])
+    if not os.path.exists(parsed_args.inputDirectory):
+       print("File does not exist")
+    else:
+        path=parsed_args.inputDirectory
+        # real image :
+        rgb=cv2.imread(path)
+        img=readimg(path)
+        length=img.shape[0]
+        ratio_v=ratio(img)
 
-# real image :
-rgb=cv2.imread(path)
-img=readimg(path)
-length=img.shape[0]
-ratio_v=ratio(img)
+        div=int(length/ratio_v)
+        #resize original image (drop height)
+        im2 = imutils.resize(img, height = div)
+        #rgb=imutils.resize(rgb, height = div)
 
-div=int(length/ratio_v)
-#resize original image (drop height)
-im2 = imutils.resize(img, height = div)
-#rgb=imutils.resize(rgb, height = div)
+        #find all contours
+        edges=detect_ctrs(im2)
+        #get the biggest one(main contour)
+        main_cont=largest_cont(edges)
 
-#find all contours
-edges=detect_ctrs(im2)
-#get the biggest one(main contour)
-main_cont=largest_cont(edges)
+        if(len(main_cont)==0):
+            #no contours only text
+            res=im2
+        else :
+            area=cont_area(edges)
+            #draw contous: visualisation--> draw=draw_cont(rgb,edges)
 
-if(len(main_cont)==0):
-    #no contours only text
-    res=im2
-else :
-    area=cont_area(edges)
-    #draw contous: visualisation--> draw=draw_cont(rgb,edges)
-
-    if(area>400):
-        #perspective correction
-        res=correct(main_cont*ratio_v,img)
-
-
-#apply median filter
-res=denoise2(res)
-#binarize using sauvola or otsu :
-bin1=binarize(res)
-#bin1=otsu(tmp)
-l,c=bin1.shape
-#create a white rectangle 1px
-nbin=np.ones([l+2,c+2])*255
-nbin[1:-1,1:-1]=bin1
-#convert type to uint8
-nbin = nbin.astype(np.uint8)
+            if(area>400):
+                #perspective correction
+                res=correct(main_cont*ratio_v,img)
 
 
-plt.subplot(1, 2, 1)
-plt.imshow(rgb)
-plt.subplot(1, 2, 2)
-plt.imshow(nbin,'gray')
-plt.show()
+        #apply median filter
+        res=denoise2(res)
+        #binarize using sauvola or otsu :
+        bin1=binarize(res)
+        #bin1=otsu(tmp)
+        l,c=bin1.shape
+        #create a white rectangle 1px
+        nbin=np.ones([l+2,c+2])*255
+        nbin[1:-1,1:-1]=bin1
+        #convert type to uint8
+        nbin = nbin.astype(np.uint8)
+
+
+        plt.subplot(1, 2, 1)
+        plt.imshow(rgb)
+        plt.subplot(1, 2, 2)
+        plt.imshow(nbin,'gray')
+        plt.show()
