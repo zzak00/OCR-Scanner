@@ -2,7 +2,7 @@
 
 Context
 ----
-OCR Scanner allows to convert your document photos into scanned document pdf (binary format), remove gray background, image to pdf converter, jpg to pdf, png to pdf.
+OCR Scanner allows to convert document photos into scanned document pdf (binary format).
 
 <p align="center">
   <img src="result.png" width="500" title="OCR Scanner RESULTS">
