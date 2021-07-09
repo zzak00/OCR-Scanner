@@ -11,7 +11,7 @@ To run the app just copy paste the command below in your command line:
 ```sh
 $ python3 scanner.py img_path
 ``` 
-OCR Scanner RESULT
+OCR Scanner Result
 ----
 <p align="center">
   <img src="result.png" width="500" title="OCR Scanner RESULTS">
