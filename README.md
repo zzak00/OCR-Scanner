@@ -20,4 +20,4 @@ OCR Scanner Result
 
 REMARK:
 ----
-The result of OCR Scanner can be used as an input to a photo OCR PIPELINE.
+The result of OCR Scanner can be used as an input to an image OCR PIPELINE.
